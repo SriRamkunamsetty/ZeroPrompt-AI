@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { FileText, UploadCloud, CheckCircle2, AlertCircle, Volume2, RefreshCw } from 'lucide-react';
 import { analyzeDocumentText } from '../services/ai_service';
 import { extractTextFromFile } from '../lib/file_parser';
@@ -14,7 +13,8 @@ import { ProcessVisualization } from '../components/ProcessVisualization';
 import { SuggestedActions } from '../components/SuggestedActions';
 import { SecurityPanel } from '../components/SecurityPanel';
 import { TestingStatus } from '../components/TestingStatus';
-import { motion, AnimatePresence } from 'motion/react';
+import { BeforeAfterPanel } from '../components/BeforeAfterPanel';
+import { ImpactPanel } from '../components/ImpactPanel';
 
 export function DocumentAnalyzer() {
   const [file, setFile] = useState<File | null>(null);
@@ -181,9 +181,17 @@ export function DocumentAnalyzer() {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Document Intelligence</h1>
           <p className="mt-2 text-lg text-gray-600">Upload a PDF or document and let AI extract key insights without writing prompts.</p>
         </div>
-        <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-semibold text-emerald-700">Systems Online</span>
+        <div className="hidden sm:flex flex-col items-end space-y-2">
+          <div className="flex items-center space-x-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-semibold text-emerald-700">Systems Online</span>
+          </div>
+          {result?.metrics?.demoMode && (
+            <div className="flex items-center space-x-2 px-3 py-1.5 bg-amber-50 rounded-full border border-amber-200 shadow-sm animate-in fade-in">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-xs font-semibold text-amber-700">Demo Mode Activated (Offline-safe fallback)</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -261,9 +269,13 @@ export function DocumentAnalyzer() {
       </Card>
 
       {!result && !analyzing && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <SecurityPanel />
-          <TestingStatus />
+        <div className="mt-8">
+          <BeforeAfterPanel />
+          <ImpactPanel />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <SecurityPanel />
+            <TestingStatus />
+          </div>
         </div>
       )}
 

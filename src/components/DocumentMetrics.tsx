@@ -9,6 +9,7 @@ interface MetricsProps {
     cost: string;
     confidence: number;
     cached: boolean;
+    demoMode?: boolean;
   };
 }
 
@@ -35,13 +36,13 @@ export const DocumentMetrics = React.memo(function DocumentMetrics({ metrics }: 
           ~{metrics.tokens.toLocaleString()}
         </div>
       </div>
-      <div className={`p-4 rounded-xl shadow-sm border flex flex-col transition-all hover:shadow-md ${metrics.cached ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'}`}>
+      <div className={`p-4 rounded-xl shadow-sm border flex flex-col transition-all hover:shadow-md ${metrics.demoMode ? 'bg-amber-100 border-amber-300' : metrics.cached ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-gray-100'}`}>
         <div className="flex items-center text-gray-500 mb-1 text-sm">
-          <Zap className={`w-4 h-4 mr-2 ${metrics.cached ? 'text-amber-500' : 'text-gray-400'}`} />
-          Cache Hit
+          <Zap className={`w-4 h-4 mr-2 ${metrics.demoMode ? 'text-amber-600' : metrics.cached ? 'text-emerald-500' : 'text-gray-400'}`} />
+          {metrics.demoMode ? 'Demo Fallback' : 'Cache Hit'}
         </div>
-        <div className={`text-xl font-bold ${metrics.cached ? 'text-amber-600' : 'text-gray-900'}`}>
-          {metrics.cached ? 'Yes (0 API Cost)' : 'No'}
+        <div className={`text-xl font-bold ${metrics.demoMode ? 'text-amber-700' : metrics.cached ? 'text-emerald-600' : 'text-gray-900'}`}>
+          {metrics.demoMode ? 'Offline Mode' : metrics.cached ? 'Yes (0 API Cost)' : 'No'}
         </div>
       </div>
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
