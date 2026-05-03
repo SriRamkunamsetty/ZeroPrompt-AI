@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "HistoryRecord": {
+      "title": "History Record",
+      "description": "A record of an AI analysis performed by the user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["document", "csv", "code", "wizard"] },
+        "fileName": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["processing", "completed", "failed"] },
+        "result": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}/history/{historyId}": {
+      "schema": { "$ref": "#/entities/HistoryRecord" },
+      "description": "Contains history records belonging to a specific user."
+    }
+  }
+}
