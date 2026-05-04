@@ -1,29 +1,24 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { analyzeDocumentText } from '../services/ai_service';
-import { ai } from '../lib/gemini';
-import { vi } from 'vitest';
-
-vi.mock('../lib/gemini', () => ({
-  ai: {
-    models: {
-      generateContent: vi.fn(),
-    }
-  }
-}));
 
 describe('AI Response Format Validation', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   it('should parse well-structured JSON correctly and calculate metrics', async () => {
-    const mockResponse = {
-      text: JSON.stringify({
-        summary: "This is a summary",
-        keyPoints: ["Point 1"],
-        quiz: [],
-        detectedContentType: "Education",
-        suggestedActions: [{ title: "Quiz", action: "quiz" }]
-      })
+    const mockData = {
+      summary: "This is a summary",
+      keyPoints: ["Point 1"],
+      quiz: [],
+      detectedContentType: "Education",
+      suggestedActions: [{ title: "Quiz", action: "quiz" }]
     };
     
-    (ai.models.generateContent as any).mockResolvedValue(mockResponse);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockData
+    });
     
     const result = await analyzeDocumentText('Some fake content to analyze');
     
@@ -36,13 +31,14 @@ describe('AI Response Format Validation', () => {
     expect(result.summary).toBe('This is a summary');
   });
 
-  it('should handle malformed non-JSON strings gracefully by bubbling up parsing errors', async () => {
-    const mockResponse = {
-      text: "I am an AI, I don't follow instructions sometimes. Here is text."
-    };
+  it('should trigger fail-safe fallback if api fails (simulating timeout/500)', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      statusText: "Internal Server Error"
+    });
     
-    (ai.models.generateContent as any).mockResolvedValue(mockResponse);
-    
-    await expect(analyzeDocumentText('content')).rejects.toThrow(); // JSON.parse will throw
+    const result = await analyzeDocumentText('content');
+    expect(result.summary).toContain('fail-safe demo response');
+    expect(result.metrics.demoMode).toBe(true);
   });
 });

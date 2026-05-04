@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.env
+.firebaserc
+firebase.json
+firestore.rules
+storage.rules
+firebase-applet-config.json
+firebase-blueprint.json
