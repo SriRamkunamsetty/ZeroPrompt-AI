@@ -1,10 +1,8 @@
 {
-  "projectId": "ai-studio-applet-webapp-ea7b4",
-  "appId": "1:333288491700:web:7129243f799a1755b225e1",
-  "apiKey": "AIzaSyDozLtXeP5giXTuMfw5kv9aZNfQugSWp0c",
-  "authDomain": "ai-studio-applet-webapp-ea7b4.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-bd58902f-88ad-4d09-b2c9-14b8d021f6b4",
-  "storageBucket": "ai-studio-applet-webapp-ea7b4.firebasestorage.app",
-  "messagingSenderId": "333288491700",
-  "measurementId": ""
+  "projectId": "plasma-streamer-469211-n5",
+  "appId": "1:1076783333102:web:7a2fcb2e1a9be56a7fbdff",
+  "storageBucket": "plasma-streamer-469211-n5.firebasestorage.app",
+  "apiKey": "AIzaSyCz7tFAqMomWrCGIkI2Pm_M-roy2hF_zB4",
+  "authDomain": "plasma-streamer-469211-n5.firebaseapp.com",
+  "messagingSenderId": "1076783333102"
 }

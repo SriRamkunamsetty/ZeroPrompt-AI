@@ -1,7 +1,7 @@
 import { ai } from '../lib/gemini';
 import { auth } from '../lib/firebase';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://zeroprompt-api-1076783333102.us-central1.run.app';
 
 async function fetchFromBackend(endpoint: string, body: any) {
   const token = auth.currentUser ? await auth.currentUser.getIdToken() : '';

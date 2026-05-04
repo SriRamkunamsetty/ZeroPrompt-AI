@@ -115,7 +115,7 @@ export function CodeAnalyzer() {
           )}
 
           {result && (
-            <div className="space-y-6 animate-in slide-in-from-right-8 duration-700 h-full overflow-y-auto pr-2">
+            <div className="space-y-6 animate-in slide-in-from-right-8 duration-700 h-full overflow-y-auto pr-2" aria-live="polite">
               <Card className="bg-gradient-to-br from-purple-50 to-white border-purple-100 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">

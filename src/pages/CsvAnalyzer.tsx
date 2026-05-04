@@ -191,7 +191,7 @@ export function CsvAnalyzer() {
       </Card>
 
       {result && (
-        <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-700">
+        <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-700" aria-live="polite">
           <Card className="border-l-4 border-l-emerald-500">
             <CardHeader>
               <CardTitle className="flex items-center text-xl">

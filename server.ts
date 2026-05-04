@@ -18,12 +18,8 @@ if (process.env.NODE_ENV === 'production' && process.env.CLOUD_RUN) {
 const app = express();
 const PORT = parseInt(process.env.PORT as string, 10) || 8080; // Cloud run default is 8080 or port from env
 
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(',') 
-  : (process.env.NODE_ENV === 'production' && process.env.CLOUD_RUN ? [] : ['*']);
-
 app.use(cors({
-  origin: allowedOrigins.length === 1 && allowedOrigins[0] === '*' ? '*' : allowedOrigins,
+  origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
 }));
@@ -36,7 +32,7 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '3mb' }));
 
 // Middleware to verify Firebase Auth token
 const verifyAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
