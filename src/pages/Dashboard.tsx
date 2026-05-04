@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { collection, query, where, orderBy, getDocs, limit } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import { handleFirestoreError, OperationType } from '../lib/error';
+import { SystemStrengthPanel } from '../components/SystemStrengthPanel';
 
 interface HistoryItem {
   id: string;
@@ -146,6 +147,8 @@ export function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      
+      <SystemStrengthPanel />
     </div>
   );
 }
