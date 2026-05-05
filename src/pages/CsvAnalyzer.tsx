@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Table as TableIcon, UploadCloud, TrendingUp, BarChart, FileSpreadsheet } from 'lucide-react';
 import { analyzeCsvData } from '../services/ai_service';
 import { db, auth } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/error';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement,
@@ -40,12 +40,13 @@ export function CsvAnalyzer() {
   };
 
   const saveHistory = async (status: string, analysisResult?: any) => {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser || !file) return;
     try {
       await addDoc(collection(db, `users/${auth.currentUser.uid}/history`), {
         userId: auth.currentUser.uid,
         type: 'csv',
-        fileName: file?.name,
+        fileName: file.name,
+        fileSize: file.size,
         status,
         result: analysisResult || null,
         createdAt: serverTimestamp(),
@@ -56,17 +57,44 @@ export function CsvAnalyzer() {
     }
   };
 
-  const handleAnalyze = () => {
+  const checkCache = async () => {
+    if (!auth.currentUser || !file) return null;
+    try {
+      const q = query(
+        collection(db, `users/${auth.currentUser.uid}/history`),
+        where('fileName', '==', file.name),
+        where('type', '==', 'csv'),
+        where('status', '==', 'completed'),
+        limit(5)
+      );
+      const snapshot = await getDocs(q);
+      const exactMatch = snapshot.docs.find(doc => doc.data().fileSize === file.size);
+      if (exactMatch) return exactMatch.data().result;
+    } catch (err) {
+      console.warn("Cache check failed", err);
+    }
+    return null;
+  };
+
+  const handleAnalyze = async () => {
     if (!file) return;
     setAnalyzing(true);
     setProgress(10);
     setError('');
 
+    const cachedResult = await checkCache();
+    if (cachedResult) {
+      setResult(cachedResult);
+      setProgress(100);
+      setAnalyzing(false);
+      return;
+    }
+
     // Parse CSV to get raw text
     Papa.parse(file, {
       complete: async (results) => {
         setProgress(30);
-        const textData = file.name + '\\n' + Papa.unparse(results.data.slice(0, 100)); // Send title and first 100 rows for context
+        const textData = `File: ${file.name}\nData Preview (First 100 rows):\n` + Papa.unparse(results.data.slice(0, 100));
         try {
           setProgress(60);
           const aiData = await analyzeCsvData(textData);
@@ -143,6 +171,8 @@ export function CsvAnalyzer() {
               className="hidden"
               id="csv-upload"
               onChange={handleFileChange}
+              aria-label="Upload a CSV spreadsheet"
+              title="Upload CSV"
             />
             <label
               htmlFor="csv-upload"

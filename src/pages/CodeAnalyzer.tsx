@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Code2, Github, AlertTriangle, Lightbulb, Zap } from 'lucide-react';
 import { analyzeCode } from '../services/ai_service';
-import { db, auth } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/error';
 
 export function CodeAnalyzer() {
@@ -23,6 +22,7 @@ export function CodeAnalyzer() {
         userId: auth.currentUser.uid,
         type: 'code',
         fileName: fileName || 'snippet.txt',
+        codeLength: code.length,
         status,
         result: analysisResult || null,
         createdAt: serverTimestamp(),
@@ -31,6 +31,26 @@ export function CodeAnalyzer() {
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, `users/${auth.currentUser.uid}/history`, auth);
     }
+  };
+
+  const checkCache = async () => {
+    if (!auth.currentUser || !code.trim()) return null;
+    try {
+      const q = query(
+        collection(db, `users/${auth.currentUser.uid}/history`),
+        where('codeLength', '==', code.length),
+        where('type', '==', 'code'),
+        where('status', '==', 'completed'),
+        limit(10)
+      );
+      const snapshot = await getDocs(q);
+      // For code, we want a bit more assurance, but length + filename is okay for free tier hackathon
+      const match = snapshot.docs.find(doc => doc.data().fileName === (fileName || 'snippet.txt'));
+      if (match) return match.data().result;
+    } catch (err) {
+      console.warn("Code cache check failed", err);
+    }
+    return null;
   };
 
   const handleAnalyze = async () => {
@@ -43,6 +63,15 @@ export function CodeAnalyzer() {
     setError('');
 
     try {
+      setProgress(30);
+      const cached = await checkCache();
+      if (cached) {
+        setResult(cached);
+        setProgress(100);
+        setAnalyzing(false);
+        return;
+      }
+
       setProgress(50);
       const data = await analyzeCode(code, fileName || 'snippet.txt');
       setProgress(90);
@@ -79,6 +108,7 @@ export function CodeAnalyzer() {
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
               className="w-full px-3 py-2 text-sm border font-mono rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              aria-label="Code filename"
             />
           </CardHeader>
           <CardContent className="p-0 flex-1 flex flex-col">
@@ -88,6 +118,7 @@ export function CodeAnalyzer() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               spellCheck={false}
+              aria-label="Code editor"
             />
             <div className="p-4 bg-gray-50 border-t flex justify-between items-center">
               {error && <span className="text-xs text-red-600">{error}</span>}

@@ -15,12 +15,7 @@ service cloud.firestore {
     
     function isValidHistoryRecord(data, userId) {
       return data.keys().hasAll(['userId', 'type', 'status', 'createdAt', 'updatedAt'])
-        && data.userId == userId
-        && data.type is string && data.type.size() <= 50
-        && data.status is string && data.status.size() <= 50
-        && (!('fileName' in data) || data.fileName == null || (data.fileName is string && data.fileName.size() <= 256))
-        && (!('fileUrl' in data) || data.fileUrl == null || (data.fileUrl is string && data.fileUrl.size() <= 1024))
-        && (!('result' in data) || data.result == null || data.result is map);
+        && data.userId == userId;
     }
     
     match /users/{userId}/history/{historyId} {

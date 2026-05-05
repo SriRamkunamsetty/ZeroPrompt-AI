@@ -15,7 +15,20 @@ async function fetchFromBackend(endpoint: string, body: any) {
   });
   
   if (!response.ok) {
-    throw new Error(`Backend error: ${response.statusText}`);
+    let errorMessage = `Backend error: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.error) {
+        if (typeof errorData.error === 'string') {
+          errorMessage = errorData.error;
+        } else if (errorData.error.message) {
+          errorMessage = errorData.error.message;
+        }
+      }
+    } catch (e) {
+      // Fallback to statusText if body is not JSON
+    }
+    throw new Error(errorMessage);
   }
   
   return response.json();
