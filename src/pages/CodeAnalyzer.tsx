@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Code2, Github, AlertTriangle, Lightbulb, Zap } from 'lucide-react';
 import { analyzeCode } from '../services/ai_service';
+import { db, auth } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/error';
 
